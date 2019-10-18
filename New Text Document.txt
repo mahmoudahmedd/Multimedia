@@ -1,0 +1,136 @@
+/**
+ *  @file    CLI.java
+ *  @author  Mahmoud Ahmed Tawfik - 20160227
+ *  @date    11/10/2019
+ *  @version 1.0
+ */
+package cli;
+import java.util.*; 
+
+public class CLI 
+{
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) 
+    {
+        try
+        {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("This tool generate compression and decompression using LZ-77 method.");
+
+            while(true)
+            {
+                boolean shouldContinue = true;
+
+                printMenu();
+                char choice = scanner.next().charAt(0);
+
+                switch(choice)
+                {
+                    case '0': shouldContinue = false; break;
+                    case '1': String inputStream = scanner.next(); Compress(inputStream); break;
+                    case '2': Decompress(); break;
+                    default:  printError();   
+                }
+                if(!shouldContinue)
+                    break;
+            }
+            printBye();
+        }
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public static void printMenu()
+    {
+        System.out.println("1) Compression");
+        System.out.println("2) Decompression");
+        System.out.println("0) Exit\n\n");
+        System.out.print("Please Enter Your Choice: ");
+    }
+    
+    public static void printError()
+    {
+        System.out.println("ERROR...");
+    }
+    
+    public static void printBye()
+    {
+        System.out.println("Bye...");
+    }
+    
+    public static void Compress(String _inputStream)
+    {
+        int next = 0;
+        ArrayList<String> dictionary = new ArrayList<String>();
+        
+        dictionary.add(null);
+
+        for(int i = 0;i < _inputStream.length();i++)
+        {
+            if(dictionary.contains(_inputStream.charAt(i) + ""))
+            {
+                String tt = "";
+                next = dictionary.indexOf(_inputStream.charAt(i) + "");
+                int j;
+                for(j = i;j < _inputStream.length();j++)
+                {
+                    tt += _inputStream.charAt(j);
+                    if(!dictionary.contains(tt))
+                    {
+                        break;
+                    }
+                    next = dictionary.indexOf(tt);
+                }
+                i = j;
+                dictionary.add(tt);
+                
+            
+                if(j == _inputStream.length())
+                {
+                    System.out.println("<" + next + ", NULL>");
+                }
+                else
+                {
+                    System.out.println("<" + next + "," + tt.charAt(tt.length()-1) + ">");   
+                } 
+            }
+            else
+            {
+                dictionary.add(_inputStream.charAt(i) + "");
+                System.out.println("<" + next + "," + _inputStream.charAt(i) + ">");
+            }
+            next = 0;
+        }
+        
+    }
+    
+    public static void Decompress()
+    {
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<String> dictionary = new ArrayList<String>();
+        int numOfTags;
+        String result = ""; 
+        
+        System.out.print("Number Of Tags:");
+        numOfTags = scanner.nextInt(); 
+        dictionary.add("");
+        
+        
+        for(int i = 0;i < numOfTags;i++)
+        {
+            System.out.print("Position:");
+            int position = scanner.nextInt();
+            System.out.print("Next Symbol:");
+            char nextSymbol = scanner.next().charAt(0);
+            
+            result += dictionary.get(position) + nextSymbol;
+            dictionary.add(dictionary.get(position) + nextSymbol);
+        }
+        System.out.println(result);
+    }
+    
+}
